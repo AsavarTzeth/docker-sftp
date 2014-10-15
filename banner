@@ -1,0 +1,17 @@
+==========================================================================
+Welcome! This is a test message!
+
+To get started login to your ssh/sftp container with these credentials:
+SFTP: Username: $SFTP_USER        SSH: Username: $SSH_USER
+
+For security reasons passwords are not listed in these logs.
+To get the password use, for SFTP:
+docker cp CONTAINER:/home/sftp/$SFTP_USER/sftp_pass HOSTPATH
+and for regular SSH:
+docker cp CONTAINER:/home/ssh/$SSH_USER/ssh_pass HOSTPATH
+When done, you might want to remove these files from the container.
+
+For more information, see the official README.md
+Link: http://https://registry.hub.docker.com/u/asavartzeth/ssh-sftp/
+Link: http://github.com/AsavarTzeth/docker-ssh-sftp/
+==========================================================================
