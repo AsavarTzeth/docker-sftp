@@ -1,55 +1,44 @@
-FROM ubuntu:14.04
-MAINTAINER Patrik Nilsson <asavar@tzeth.com> 
+FROM debian:wheezy
+MAINTAINER Patrik Nilsson <asavar@tzeth.com>
 
-ENV OPENSSH_VERSION 6.6
+ENV OPENSSH_VERSION 1:6.6p1-4~bpo70+1
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-	openssh-server \
+RUN echo "deb http://http.debian.net/debian wheezy-backports main" >> /etc/apt/sources.list \
+	&& apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+	expect \
+	openssh-client=$OPENSSH_VERSION \
+	openssh-server=$OPENSSH_VERSION \
+	openssh-sftp-server=$OPENSSH_VERSION \
 	pwgen \
-	rssh \
-	rsync
+	&& rm -rf /var/lib/apt/lists/*
 
 ENV CONF_SSH /etc/ssh
 
-RUN mkdir -p /var/run/sshd /home/sftp /home/ssh && sed -ri \
+RUN mkdir -p /var/run/sshd && sed -ri \
+	-e "s|\S?(AuthorizedKeysFile).*|\1 %h/.ssh/authorized_keys|g" \
 	-e "s|\S?(Banner).*|\1 /etc/banner|g" \
 	-e "s|\S?(PermitRootLogin).*|\1 no|g" \
 	-e "s|\S?(X11Forwarding).*|\1 no|g" \
 	-e "s|\S?(Subsystem sftp).*|\1 internal-sftp|g" \
-	-e "\$a\ \n# Added security settings, by Dockerfile (asavartzeth/ssh-sftp)" \
+	-e "\$a\ \n# Added security settings, by Dockerfile (asavartzeth/sftp)" \
 	-e "\$aAllowGroups sftpusers" \
-	-e "\$aAllowGroups sshusers" \
 	-e "\$aAllowTcpForwarding no" \
 	-e "\$aClientAliveInterval 300" \
-	-e "\$a\ \n Match Group sftpusers" \
-	-e "\$aChrootDirectory /home/sftp" \
-	-e "\$aAllowTCPForwarding no" \
-	-e "\$aForceCommand internal-sftp -d %u" \
-	-e "\$a\ \n Match Group sshusers" \
-	-e "\$aChrootDirectory /home/ssh" \
+	-e "\$a\ \nMatch Group sftpusers" \
+	-e "\$aChrootDirectory" \
 	-e "\$aAllowTCPForwarding no" \
 	-e "\$aForceCommand internal-sftp -d %u" $CONF_SSH/sshd_config \
-	&& groupadd -g 3000 sftpusers \
-	&& groupadd -g 4000 sshusers
-
-# Workaround docker volume limitations
-# We want volumes for some config files, but not /etc/*
-RUN mkdir -p /etc/rssh /etc/auth \
-	&& mv /etc/rssh.conf /etc/rssh/ \
-	&& ln -s /etc/rssh/* /etc/
+	&& groupadd -g 5001 sftpusers
 
 ADD banner /etc/banner
 ADD entrypoint.sh /entrypoint.sh
 
-RUN chmod 744 /entrypoint.sh \
-	&& chmod 111 /home/sftp /home/ssh
-
-# Put low, so changes do not require rebuild.
-ENV CONF_RSSH /etc/rssh
+RUN chmod 744 /entrypoint.sh
 
 # For those that prefer volumes only, over data volume containers.
+# Note, if you use the recommended setup these serve no direct purpose.
 VOLUME ["/etc/ssh"]
-VOLUME ["/etc/rssh"]
+VOLUME ["/chroot"]
 
 ENTRYPOINT ["/entrypoint.sh"]
 
