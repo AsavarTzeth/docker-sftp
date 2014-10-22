@@ -37,8 +37,7 @@ RUN chmod 744 /entrypoint.sh
 
 # For those that prefer volumes only, over data volume containers.
 # Note, if you use the recommended setup these serve no direct purpose.
-VOLUME ["/etc/ssh"]
-VOLUME ["/chroot"]
+VOLUME ["/etc/ssh", "/chroot"]
 
 ENTRYPOINT ["/entrypoint.sh"]
 
