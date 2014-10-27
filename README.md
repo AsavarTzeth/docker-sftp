@@ -33,7 +33,7 @@ The included entrypoint script will then check for this bind mount, it will then
 
     docker run --name some-sftp -v /your/files:$SFTP_CHROOT/files -P -d asavartzeth/sftp
 
-Preferably you would do this when you first deploy the container. However, you could certainly do the deployment as instructed above, commit and then re-deploy.
+Preferably you would do this when you first deploy the container. However, you could certainly do the deployment as instructed under **"Deploying a simple sftp instance"**, commit and then re-deploy.
 
 *See details of the $SFTP_CHROOT environment variable bellow.*
 
@@ -51,10 +51,11 @@ You can use the modified configuration with:
 
 #Configuration Options#
 
-This is a full list of environment variables that may be used to configure your container.
+This is a full list of environment variables that will be used in the configuration of your instance.
 
 - -e `SFTP_USER=...` (defaults to sftp1)
-- -e `SFTP_UID=...` (defaults to 2001)  
+- -e `SFTP_UID=...` (defaults to 2001)
+- -e `SFTP_PASS=...` (defaults to randomly generated password)
 - -e `SFTP_CHROOT=...` (defaults to /chroot, or $DATA\_VOLUME/chroot if volume is detected)
 - -e `SFTP_LOG_LEVEL=...` (defaults to /data/volume)  
 The possible values are: QUIET, FATAL, ERROR, INFO, VERBOSE, DEBUG, DEBUG1, DEBUG2, and DEBUG3.
