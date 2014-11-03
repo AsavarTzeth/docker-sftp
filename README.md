@@ -23,19 +23,21 @@ The port will be randomly chosen by the docker daemon. You may of course specify
 ##Deploying, using a data volume container##
 
     docker run --name sftp-data -v /data/volume tianon/true
-    docker run --name some-sftp --volumes-from sftp-data -d -P asavartzeth/sftp
+    docker run --name some-sftp --volumes-from sftp-data -P -d asavartzeth/sftp
 
-This will pull down the tiny tianon/true container (unless you have it already) and set it to share /data/volume. The SFTP instance will then bind mount this location.
+This will pull down the tiny [tianon/true](https://registry.hub.docker.com/u/tianon/true/) container (unless you have it already) and set it to share /data/volume. The second command does the deployment, using the shared volume.
 
-The included entrypoint script will then check for this bind mount, it will then, if found, copy the data volume and move all persistent data to this location. This will keep it safe between upgrades & allows for easy backups.
+The included entrypoint script will check for this volume. If found, it will move all persistent data to this location. This will keep it safe between upgrades & allows for easy backups.
+
+*See **Configuration Options** bellow, regarding $DATA_VOLUME details (defaults to /data/volume)*
 
 ##Exposing a file tree to the instance##
 
-    docker run --name some-sftp -v /your/files:$SFTP_CHROOT/files -P -d asavartzeth/sftp
+    docker run --name some-sftp -v /path/dir:$SFTP_CHROOT/share/dir -P -d asavartzeth/sftp
 
 Preferably you would do this when you first deploy the container. However, you could certainly do the deployment as instructed under **"Deploying a simple sftp instance"**, commit and then re-deploy.
 
-*See details of the $SFTP_CHROOT environment variable bellow.*
+*See **Configuration Options** bellow, regarding $SFTP_CHROOT (defaults to /chroot)*
 
 ##Complex configuration##
 
@@ -56,11 +58,15 @@ This is a full list of environment variables that will be used in the configurat
 - -e `SFTP_USER=...` (defaults to sftp1)
 - -e `SFTP_UID=...` (defaults to 2001)
 - -e `SFTP_PASS=...` (defaults to randomly generated password)
-- -e `SFTP_CHROOT=...` (defaults to /chroot, or $DATA\_VOLUME/chroot if volume is detected)
-- -e `SFTP_LOG_LEVEL=...` (defaults to /data/volume)  
+- -e `SFTP_LOG_LEVEL=...` (defaults to INFO)  
 The possible values are: QUIET, FATAL, ERROR, INFO, VERBOSE, DEBUG, DEBUG1, DEBUG2, and DEBUG3.
+
+These options are unique to my images. They are here for the purposes of freedom and advanced use cases. If you have no use for them, they will be ignored. **Default is strongly recommended.**
+
 - -e `DATA_VOLUME=...` (defaults to /data/volume)  
-Unique to my setup script. It allows you to set a custom data volume (container) you may be using, ex. `docker run -v /data/volume data-image`. **Default is recommended.**
+*This will set the path of a data volume container. With it you may use a container, such as [tianon/true](https://registry.hub.docker.com/u/tianon/true/), to store your data. Data will be copied and linked automatically.*
+- -e `SFTP_CHROOT=...` (defaults to /chroot, or $DATA\_VOLUME/chroot)  
+*This sets the chroot directory for the sftp instance. It's root will automatically be copied and linked if a data volume is detected (see above). There should rarely be a reason to touch this.*
 
 #User Feedback#
 

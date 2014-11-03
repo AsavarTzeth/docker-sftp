@@ -28,7 +28,7 @@ RUN mkdir -p /var/run/sshd && sed -ri \
 	-e "\$aChrootDirectory" \
 	-e "\$aAllowTCPForwarding no" \
 	-e "\$aForceCommand internal-sftp -d %u" $CONF_SSH/sshd_config \
-	&& groupadd -g 5001 sftpusers
+	&& groupadd -g 5000 sftpusers
 
 ADD banner /etc/banner
 ADD entrypoint.sh /entrypoint.sh
