@@ -10,7 +10,6 @@ set -e
 
 : ${SFTP_USER:=sftp1}
 : ${SFTP_UID:=2001}
-: ${SFTP_CHROOT:=/chroot}
 : ${SFTP_LOG_LEVEL:=INFO}
 
 # Edit settings in relevant config files
@@ -24,16 +23,16 @@ set_config() {
 
 config_file="$CONF_SSH/sshd_config"
 set_config 'LogLevel' "$SFTP_LOG_LEVEL"
-set_config 'ChrootDirectory' "$SFTP_CHROOT"
 
 : ${SFTP_DATA_DIR:=/data/sftp}
 
 # Check for the existance of the default, or a specified, data volume.
 echo >&2 'Searching for mounted data volumes...'
 if ! [ -e $SFTP_DATA_DIR ]; then
+	: ${SFTP_CHROOT:=/chroot}
 	echo >&2 'Warning: data volume not found!'
-	echo >&2 ' Did you forget to do --volumes-from data-container ?'
-	echo >&2 ' If you choose to not use a data volume container, feel free to ignore this.'
+	echo >&2 ' Did you forget --volumes-from data-container or -v /path/sftp:/data/sftp ?'
+	echo >&2 ' If you are aware of how docker volumes work and how to store data, ignore this.'
 else
 	# Set chroot to data volume container
 	: ${SFTP_CHROOT:=$SFTP_DATA_DIR/chroot}
@@ -66,10 +65,9 @@ CHECK2=$(getent passwd $SFTP_UID > /dev/null; echo $?)
 # Check for conflicts, then do user setup.
 if [ $CHECK1 -eq 0 -o $CHECK2 -eq 0 ]; then
 	echo >&2 'Warning: a conflict in the user setup detected! - skipping...'
-	echo >&2 ' This should only occur under two conditions:'
-	echo >&2 '  1. You are updating or migrating the container, in which case this is normal.'
-	echo >&2 '  2. You have chosen to bind mount auth files from the host.'
-	echo >&2 ' If neither of these are true, the instance may not work properly (no sftp user login).'
+	echo >&2 ' This should only ever occur under the following condition:'
+	echo >&2 '  1. You are updating or migrating the container, in which case ignore this.'
+	echo >&2 ' If this is not the case, this instance may not work properly (no sftp user login).'
 else
 	useradd -Ud /share -u $SFTP_UID -s /usr/sbin/nologin -G sftpusers $SFTP_USER
 	if [ -z $SFTP_PASS ]; then SFTP_PASS=`pwgen -scnB1 12`; fi
@@ -86,7 +84,7 @@ else
 	echo
 	echo 'For security reasons passwords are not listed here.'
 	echo 'To get the password run this:'
-	echo "docker cp some-container:/sftp_pass"
+	echo "docker cp some-container:/sftp_pass ."
 	echo
 	echo 'For more information, see the official README.md'
 	echo 'Link: http://registry.hub.docker.com/u/asavartzeth/sftp/'

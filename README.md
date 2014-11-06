@@ -75,13 +75,8 @@ This is a full list of environment variables that will be used in the configurat
 - -e `SFTP_PASS=...` (defaults to randomly generated password)
 - -e `SFTP_LOG_LEVEL=...` (defaults to INFO)  
 The possible values are: QUIET, FATAL, ERROR, INFO, VERBOSE, DEBUG, DEBUG1, DEBUG2, and DEBUG3.
-
-These options are unique to my images. They are here for the purposes of freedom and advanced use cases. If you have no use for them, they will be ignored. **Default is strongly recommended.**
-
 - -e `SFTP_DATA_DIR=...` (defaults to /data/sftp)  
-*This will set the path of a data volume container. With it you may use a container, such as [tianon/true](https://registry.hub.docker.com/u/tianon/true/), to store your data. You may also use this to store your data on the host. Data will be copied and linked automatically.*
-- -e `SFTP_CHROOT=...` (defaults to /chroot, or $DATA\_VOLUME/chroot)  
-*This sets the chroot directory for the sftp instance. It's root will automatically be copied and linked if a data volume is detected (see above). There should rarely be a reason to touch this.*
+*This will set the location of a data volume. It is used by the runtime script, to enable the transfer of application data to an empty location. This location could be a data volume container, such as [tianon/true](https://registry.hub.docker.com/u/tianon/true/), or a location on your host.*
 
 #User Feedback#
 

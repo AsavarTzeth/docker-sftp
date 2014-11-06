@@ -25,7 +25,7 @@ RUN mkdir -p /var/run/sshd && sed -ri \
 	-e "\$aAllowTcpForwarding no" \
 	-e "\$aClientAliveInterval 300" \
 	-e "\$a\ \nMatch Group sftpusers" \
-	-e "\$aChrootDirectory" \
+	-e "\$aChrootDirectory /chroot" \
 	-e "\$aAllowTCPForwarding no" \
 	-e "\$aForceCommand internal-sftp -d %u" $CONF_SSH/sshd_config \
 	&& groupadd -g 5000 sftpusers
