@@ -34,7 +34,7 @@ At runtime the included entrypoint script will check for the presence of $SFTP_D
 
 If you change $SFTP_DATA_DIR, do not forget to change the first command as well.
 
-*See **Configuration Options** bellow, regarding $SFTP_DATA_DIR details (defaults to /data/sftp)*
+_See **Configuration Options** bellow, regarding $SFTP_DATA_DIR details (defaults to /data/sftp)_
 
 ###Storing data in a host directory###
 
@@ -52,7 +52,7 @@ A possible downside to this approach might be lesser portability of your data.
 
 Preferably you would do this when you first deploy the container. However, you could certainly do the deployment as instructed under **"Deploying a simple sftp instance"**, commit and then re-deploy.
 
-*See **Configuration Options** bellow, regarding $SFTP_CHROOT (defaults to /chroot)*
+_See **Configuration Options** bellow, regarding $SFTP_CHROOT (defaults to /chroot)_
 
 ##Complex configuration##
 
