@@ -26,30 +26,30 @@ config_file="$CONF_SSH/sshd_config"
 set_config 'LogLevel' "$SFTP_LOG_LEVEL"
 set_config 'ChrootDirectory' "$SFTP_CHROOT"
 
-: ${DATA_VOLUME:=/data/volume}
+: ${SFTP_DATA_DIR:=/data}
 
 # Check for the existance of the default, or a specified, data volume.
 echo >&2 'Searching for mounted data volumes...'
-if ! [ -e $DATA_VOLUME ]; then
+if ! [ -e $SFTP_DATA_DIR ]; then
 	echo >&2 'Warning: data volume not found!'
 	echo >&2 ' Did you forget to do --volumes-from data-container ?'
 	echo >&2 ' If you choose to not use a data volume container, feel free to ignore this.'
 else
 	# Set chroot to data volume container
-	: ${SFTP_CHROOT:=$DATA_VOLUME/chroot}
+	: ${SFTP_CHROOT:=$SFTP_DATA_DIR/chroot}
 	set_config 'ChrootDirectory' "$SFTP_CHROOT"
 	# If no old data exist on volume, transfer persistant data.
-	if [ -e $DATA_VOLUME/etc/ssh ]; then
+	if [ -e $SFTP_DATA_DIR/etc/ssh ]; then
 		echo >&2 'Data volume found! But data already exists - skipping...'
 	else
 		echo >&2 'Data volume found! - copying now...'
-		mkdir -p ${DATA_VOLUME}${CONF_SSH}
-		cp -ax $CONF_SSH/* ${DATA_VOLUME}${CONF_SSH}/
-		echo >&2 "Complete! Persistant data has successfully been copied to $DATA_VOLUME."
+		mkdir -p ${SFTP_DATA_DIR}${CONF_SSH}
+		cp -ax $CONF_SSH/* ${SFTP_DATA_DIR}${CONF_SSH}/
+		echo >&2 "Complete! Persistant data has successfully been copied to $SFTP_DATA_DIR."
 	fi
 	# Symlink ssh config and keys to data volume
 	rm $CONF_SSH/*
-	ln -s ${DATA_VOLUME}${CONF_SSH}/* ${CONF_SSH}/
+	ln -s ${SFTP_DATA_DIR}${CONF_SSH}/* ${CONF_SSH}/
 fi
 
 : ${SFTP_HOME:=$SFTP_CHROOT/share}

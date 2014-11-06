@@ -20,18 +20,33 @@ The port will be randomly chosen by the docker daemon. You may of course specify
 
     docker run --name some-sftp -p xxxx:22 -d asavartzeth/sftp
 
-##Deploying, using a data volume container##
+By default your data is shared as standard Docker volumes. If you are unsure of what this means or simply have other needs I recommend you read the next section: **"Storing your data"**.
 
-    docker run --name sftp-data -v /data/volume tianon/true
+##Storing your data##
+###Storing data in a data volume container###
+
+    docker run --name sftp-data -v /data/sftp tianon/true
     docker run --name some-sftp --volumes-from sftp-data -P -d asavartzeth/sftp
 
-This will pull down the tiny [tianon/true](https://registry.hub.docker.com/u/tianon/true/) container (unless you have it already) and set it to share /data/volume. The second command does the deployment, using the shared volume.
+This will pull down the tiny [tianon/true](https://registry.hub.docker.com/u/tianon/true/) container (unless you have it already) and set it to share /data/sftp. The second command does the deployment as normal, with the addition of mounting the shared volume at /data/sftp.
 
-The included entrypoint script will check for this volume. If found, it will move all persistent data to this location. This will keep it safe between upgrades & allows for easy backups.
+At runtime the included entrypoint script will check for the presence of $SFTP_DATA_DIR. If found, it will automatically transfer all important data to this location. This will keep it safe between upgrades & could simplify backups.
 
-*See **Configuration Options** bellow, regarding $DATA_VOLUME details (defaults to /data/volume)*
+If you change $SFTP_DATA_DIR, do not forget to change the first command as well.
 
-##Exposing a file tree to the instance##
+*See **Configuration Options** bellow, regarding $SFTP_DATA_DIR details (defaults to /data/sftp)*
+
+###Storing data in a host directory###
+
+    docker run --name some-sftp -v /path/container-data/sftp:/data/sftp -P -d asavartzeth/sftp
+
+This is using the same principle as above. But instead of mounting the volume of another container you will mount a host directory.
+
+This is useful in the sense that it could minimize filesystem overhead and would allow you to safekeep your data in a more traditional way. Another thing to note is, if you wish to use zfs, or another filesystem with no Docker backend, this enables a good compromise.
+
+A possible downside to this approach might be lesser portability of your data.
+
+##Exposing files & directories to the instance##
 
     docker run --name some-sftp -v /path/dir:$SFTP_CHROOT/share/dir -P -d asavartzeth/sftp
 
@@ -63,8 +78,8 @@ The possible values are: QUIET, FATAL, ERROR, INFO, VERBOSE, DEBUG, DEBUG1, DEBU
 
 These options are unique to my images. They are here for the purposes of freedom and advanced use cases. If you have no use for them, they will be ignored. **Default is strongly recommended.**
 
-- -e `DATA_VOLUME=...` (defaults to /data/volume)  
-*This will set the path of a data volume container. With it you may use a container, such as [tianon/true](https://registry.hub.docker.com/u/tianon/true/), to store your data. Data will be copied and linked automatically.*
+- -e `SFTP_DATA_DIR=...` (defaults to /data/sftp)  
+*This will set the path of a data volume container. With it you may use a container, such as [tianon/true](https://registry.hub.docker.com/u/tianon/true/), to store your data. You may also use this to store your data on the host. Data will be copied and linked automatically.*
 - -e `SFTP_CHROOT=...` (defaults to /chroot, or $DATA\_VOLUME/chroot)  
 *This sets the chroot directory for the sftp instance. It's root will automatically be copied and linked if a data volume is detected (see above). There should rarely be a reason to touch this.*
 
