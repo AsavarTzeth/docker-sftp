@@ -13,6 +13,7 @@ set -e
 : ${SFTP_CHROOT:=/chroot}
 : ${SFTP_LOG_LEVEL:=INFO}
 
+# Edit settings in relevant config files
 set_config() {
     key="$1"
     value="$2"
@@ -20,6 +21,10 @@ set_config() {
         sed -ri "s|($key).*|\1 $value|g" $config_file
     fi
 }
+
+config_file="$CONF_SSH/sshd_config"
+set_config 'LogLevel' "$SFTP_LOG_LEVEL"
+set_config 'ChrootDirectory' "$SFTP_CHROOT"
 
 : ${DATA_VOLUME:=/data/volume}
 
@@ -32,6 +37,7 @@ if ! [ -e $DATA_VOLUME ]; then
 else
 	# Set chroot to data volume container
 	: ${SFTP_CHROOT:=$DATA_VOLUME/chroot}
+	set_config 'ChrootDirectory' "$SFTP_CHROOT"
 	# If no old data exist on volume, transfer persistant data.
 	if [ -e $DATA_VOLUME/etc/ssh ]; then
 		echo >&2 'Data volume found! But data already exists - skipping...'
@@ -45,11 +51,6 @@ else
 	rm $CONF_SSH/*
 	ln -s ${DATA_VOLUME}${CONF_SSH}/* ${CONF_SSH}/
 fi
-
-# Edit settings in relevant config files
-config_file="$CONF_SSH/sshd_config"
-set_config 'LogLevel' "$SFTP_LOG_LEVEL"
-set_config 'ChrootDirectory' "$SFTP_CHROOT"
 
 : ${SFTP_HOME:=$SFTP_CHROOT/share}
 
