@@ -48,11 +48,9 @@ A possible downside to this approach might be lesser portability of your data.
 
 ##Exposing files & directories to the instance##
 
-    docker run --name some-sftp -v /path/dir:$SFTP_CHROOT/share/dir -P -d asavartzeth/sftp
+    docker run --name some-sftp -v /path/dir:$SFTP_DATA_DIR/chroot/share/dir -P -d asavartzeth/sftp
 
 Preferably you would do this when you first deploy the container. However, you could certainly do the deployment as instructed under **"Deploying a simple sftp instance"**, commit and then re-deploy.
-
-_See **Configuration Options** bellow, regarding $SFTP_CHROOT (defaults to /chroot)_
 
 ##Complex configuration##
 
