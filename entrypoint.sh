@@ -26,7 +26,7 @@ config_file="$CONF_SSH/sshd_config"
 set_config 'LogLevel' "$SFTP_LOG_LEVEL"
 set_config 'ChrootDirectory' "$SFTP_CHROOT"
 
-: ${SFTP_DATA_DIR:=/data}
+: ${SFTP_DATA_DIR:=/data/sftp}
 
 # Check for the existance of the default, or a specified, data volume.
 echo >&2 'Searching for mounted data volumes...'
