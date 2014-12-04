@@ -29,16 +29,20 @@ set_config 'LogLevel' "$SFTP_LOG_LEVEL"
 # Check for the existance of the default, or a specified, data volume.
 echo >&2 'Searching for mounted data volumes...'
 if ! [ -e $SFTP_DATA_DIR ]; then
-	: ${SFTP_CHROOT:=/chroot}
-	echo >&2 'Warning: data volume not found!'
-	echo >&2 ' Did you forget --volumes-from data-container or -v /path/sftp:/data/sftp ?'
-	echo >&2 ' If you are aware of how docker volumes work and how to store data, ignore this.'
+	SFTP_DATA_DIR="/"
+	SFTP_CHROOT="/chroot"
+	echo >&2 'Data volume not found!'
+	echo >&2 ' Data is important. Make sure you have read & understood "Managing Data in Containers",'
+	echo >&2 ' in the official docker documentation. Following are examples of storing data.'
+	echo >&2 '  1. Using data volumes. Recommended volumes: "/etc/ssh","/chroot".'
+	echo >&2 '  2. Using a data volume container, e.g "tianon/true". Recommended volumes-from: "/data/sftp".'
+	echo >&2 '  3. Mounting a host directory as a data volume. Recommended volume: "/host/dir/:/data/sftp".'
 else
 	# Set chroot to data volume container
-	: ${SFTP_CHROOT:=$SFTP_DATA_DIR/chroot}
+	SFTP_CHROOT="$SFTP_DATA_DIR/chroot"
 	set_config 'ChrootDirectory' "$SFTP_CHROOT"
 	# If no old data exist on volume, transfer persistant data.
-	if [ -e $SFTP_DATA_DIR/etc/ssh ]; then
+	if [ -e ${SFTP_DATA_DIR}${CONF_SSH} ]; then
 		echo >&2 'Data volume found! But data already exists - skipping...'
 	else
 		echo >&2 'Data volume found! - copying now...'
@@ -64,13 +68,14 @@ CHECK2=$(getent passwd $SFTP_UID > /dev/null; echo $?)
 
 # Check for conflicts, then do user setup.
 if [ $CHECK1 -eq 0 -o $CHECK2 -eq 0 ]; then
-	echo >&2 'Warning: a conflict in the user setup detected! - skipping...'
-	echo >&2 ' This should only ever occur under the following condition:'
-	echo >&2 '  1. You are updating or migrating the container, in which case ignore this.'
-	echo >&2 ' If this is not the case, this instance may not work properly (no sftp user login).'
+	echo >&2 'Warning: a conflict occured during user setup! - skipping...'
+	echo >&2 " The user $SFTP_USER and/or uid $SFTP_UID is already in use."
+	echo >&2 ' If this is part of an update or migration this is to be expected. '
 else
 	useradd -Ud /share -u $SFTP_UID -s /usr/sbin/nologin -G sftpusers $SFTP_USER
-	if [ -z $SFTP_PASS ]; then SFTP_PASS=`pwgen -scnB1 12`; fi
+	if [ -z $SFTP_PASS ]; then
+		SFTP_PASS=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1 | grep -i '[a-zA-Z0-9]'`
+	fi
 	echo $SFTP_PASS > sftp_pass; chmod 600 sftp_pass
 	echo "$SFTP_USER:$SFTP_PASS" | chpasswd && unset SFTP_PASS
 

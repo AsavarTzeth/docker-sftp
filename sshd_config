@@ -1,0 +1,37 @@
+# Config file for use in asavartzeth/sftp (docker-sftp)
+# See the sshd_config(5) manpage for details.
+# See http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man5/sshd_config.5?query=sshd_config&sec=5 for complete man page.
+
+# User definable
+PasswordAuthentication yes
+PubkeyAuthentication yes
+
+# Essential to the image. Do not touch.
+AllowGroups sftpusers
+AllowTcpForwarding no
+AuthorizedKeysFile %h/.ssh/authorized_keys
+ChallengeResponseAuthentication no
+ClientAliveInterval 300
+Banner /etc/banner
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_dsa_key
+HostKey /etc/ssh/ssh_host_ecdsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key
+PermitEmptyPasswords no
+PermitRootLogin no
+Port 22
+Protocol 2
+StrictModes yes
+Subsystem sftp internal-sftp
+TCPKeepAlive yes
+UsePAM no
+UsePrivilegeSeparation yes
+X11Forwarding no
+
+# Debugging
+SyslogFacility AUTH
+LogLevel INFO
+
+Match Group sftpusers
+  ChrootDirectory /chroot
+  ForceCommand internal-sftp -d %u
