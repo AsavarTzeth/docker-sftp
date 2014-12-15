@@ -1,0 +1,12 @@
+sftp:
+  image: asavartzeth/sftp:alpha
+  environment:
+   - SFTP_USER=user1
+   - SFTP_PASS=password1
+   - SFTP_KEYPASS=keypass1
+   - SFTP_UID=1001
+   - SFTP_DATA_DIR=/data1/sftp
+  volumes:
+   - /var/docker-test/dir:/data1/sftp/chroot/share/dir
+  ports:
+   - "30022:22"

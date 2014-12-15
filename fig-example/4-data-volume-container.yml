@@ -1,0 +1,12 @@
+sftp:
+  image: asavartzeth/sftp:alpha
+  volumes_from:
+   - sftpdata
+  volumes:
+   - /var/docker-test/dir:/data/sftp/chroot/share/dir
+  ports:
+   - "30022:22"
+sftpdata:
+  image: tianon/true
+  volumes:
+   - /data/sftp

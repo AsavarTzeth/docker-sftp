@@ -1,0 +1,6 @@
+sftp:
+  image: asavartzeth/sftp:alpha
+  volumes:
+   - /var/docker-test/dir:chroot/share/dir
+  ports:
+   - "30022:22"

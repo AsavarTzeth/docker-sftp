@@ -3,6 +3,7 @@
 # See http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man5/sshd_config.5?query=sshd_config&sec=5 for complete man page.
 
 # User definable
+LogLevel INFO
 PasswordAuthentication yes
 PubkeyAuthentication yes
 
@@ -27,10 +28,6 @@ TCPKeepAlive yes
 UsePAM no
 UsePrivilegeSeparation yes
 X11Forwarding no
-
-# Debugging
-SyslogFacility AUTH
-LogLevel INFO
 
 Match Group sftpusers
   ChrootDirectory /chroot
