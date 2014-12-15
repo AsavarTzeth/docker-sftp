@@ -72,30 +72,31 @@ if [ $CHECK1 -eq 0 -o $CHECK2 -eq 0 ]; then
 	echo >&2 '  In all cases except first run, this is normal and can safely be ignored. '
 else
 	useradd -Ud /share -u $SFTP_UID -s /usr/sbin/nologin -G sftpusers $SFTP_USER
-	if [ -z $SFTP_PASS ]; then
-		SFTP_PASS=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1 | grep -i '[a-zA-Z0-9]'`
-	fi
-	echo $SFTP_PASS > sftp_pass; chmod 600 sftp_pass
-	echo "$SFTP_USER:$SFTP_PASS" | chpasswd && unset SFTP_PASS
-	echo "Success! User setup completed without conflict."
-
-	# Echo quickstart guide to logs
-	echo
-	echo '================================================================================='
-	echo 'Your sftp container is now ready to use!'
-	echo
-	echo 'Login to your new sftp container with these credentials:'
-	echo "Username: $SFTP_USER"
-	echo
-	echo 'For security reasons passwords are not listed here.'
-	echo 'To get the password run this:'
-	echo "docker cp some-container:/sftp_pass ."
-	echo
-	echo 'For more information, see the official README.md'
-	echo 'Link: http://registry.hub.docker.com/u/asavartzeth/sftp/'
-	echo 'Link: http://github.com/AsavarTzeth/docker-sftp/'
-	echo '================================================================================='
 fi
+
+if [ -z $SFTP_PASS ]; then
+	SFTP_PASS=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1 | grep -i '[a-zA-Z0-9]'`
+fi
+echo $SFTP_PASS > sftp_pass; chmod 600 sftp_pass
+echo "$SFTP_USER:$SFTP_PASS" | chpasswd && unset SFTP_PASS
+echo "Success! User setup completed without conflict."
+
+# Echo quickstart guide to logs
+echo
+echo '================================================================================='
+echo 'Your sftp container is now ready to use!'
+echo
+echo 'Login to your new sftp container with these credentials:'
+echo "Username: $SFTP_USER"
+echo
+echo 'For security reasons passwords are not listed here.'
+echo 'To get the password run this:'
+echo "docker cp some-container:/sftp_pass ."
+echo
+echo 'For more information, see the official README.md'
+echo 'Link: http://registry.hub.docker.com/u/asavartzeth/sftp/'
+echo 'Link: http://github.com/AsavarTzeth/docker-sftp/'
+echo '================================================================================='
 
 echo -e '\nRuntime helper script finished!'
 echo -e 'Running "/usr/sbin/sshd"...\n'
