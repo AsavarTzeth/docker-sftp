@@ -69,7 +69,9 @@ if [ $CHECK1 -eq 0 -o $CHECK2 -eq 0 ]; then
 	echo >&2 '  1. You are updating or migrating the container, in which case ignore this.'
 	echo >&2 ' If this is not the case, this instance may not work properly (no sftp user login).'
 else
-	useradd -Ud /share -u $SFTP_UID -s /usr/sbin/nologin -G sftpusers $SFTP_USER
+	useradd -Ud /share -u $SFTP_UID -s /usr/sbin/nologin $SFTP_USER
+fi
+	usermod -aG sftpusers $SFTP_USER
 	if [ -z $SFTP_PASS ]; then SFTP_PASS=`pwgen -scnB1 12`; fi
 	echo $SFTP_PASS > sftp_pass; chmod 600 sftp_pass
 	echo "$SFTP_USER:$SFTP_PASS" | chpasswd && unset SFTP_PASS
@@ -90,7 +92,6 @@ else
 	echo 'Link: http://registry.hub.docker.com/u/asavartzeth/sftp/'
 	echo 'Link: http://github.com/AsavarTzeth/docker-sftp/'
 	echo '================================================================================='
-fi
 
 echo "Deployment completed!"
 
