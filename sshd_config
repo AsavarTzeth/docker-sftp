@@ -8,12 +8,13 @@ PasswordAuthentication yes
 PubkeyAuthentication yes
 
 # Essential to the image. Do not touch.
-AllowGroups sftpusers
 AllowTcpForwarding no
 AuthorizedKeysFile %h/.ssh/authorized_keys
-ChallengeResponseAuthentication no
-ClientAliveInterval 300
 Banner /etc/banner
+ChallengeResponseAuthentication no
+ChrootDirectory /chroot
+ClientAliveInterval 300
+ForceCommand internal-sftp -d %u
 HostKey /etc/ssh/ssh_host_rsa_key
 HostKey /etc/ssh/ssh_host_dsa_key
 HostKey /etc/ssh/ssh_host_ecdsa_key
@@ -28,7 +29,3 @@ TCPKeepAlive yes
 UsePAM no
 UsePrivilegeSeparation yes
 X11Forwarding no
-
-Match Group sftpusers
-  ChrootDirectory /chroot
-  ForceCommand internal-sftp -d %u

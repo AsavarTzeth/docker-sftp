@@ -1,7 +1,7 @@
 =================================================================================
 Welcome to your new sftp container!
 
-To get the password, on the docker host system, run this:
+To get the passwords, on the docker host system run this:
 docker cp some-container:/sftp_pass .
 
 For more information, see the official README.md

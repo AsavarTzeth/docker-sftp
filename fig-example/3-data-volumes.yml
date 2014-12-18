@@ -3,6 +3,6 @@ sftp:
   volumes:
    - /chroot/.ssh
    - /etc/ssh
-   - /var/docker-test/dir:/chroot/share/dir
+   - /var/docker-test/dir:/chroot/sftp1/dir
   ports:
    - "30022:22"

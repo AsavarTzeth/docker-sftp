@@ -3,7 +3,7 @@ sftp:
   volumes_from:
    - sftpdata
   volumes:
-   - /var/docker-test/dir:/data/sftp/chroot/share/dir
+   - /var/docker-test/dir:/data/sftp/chroot/sftp1/dir
   ports:
    - "30022:22"
 sftpdata:

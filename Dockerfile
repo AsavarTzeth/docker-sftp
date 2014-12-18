@@ -12,8 +12,7 @@ RUN echo "deb http://http.debian.net/debian wheezy-backports main" >> /etc/apt/s
 	openssh-sftp-server=$OPENSSH_VERSION && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
-    mkdir -p /var/run/sshd && \
-    groupadd -g 5000 sftpusers
+    mkdir -p /var/run/sshd
 
 COPY banner /etc/banner
 COPY entrypoint.sh /entrypoint.sh

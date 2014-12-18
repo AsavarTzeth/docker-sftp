@@ -5,8 +5,9 @@ sftp:
    - SFTP_PASS=password1
    - SFTP_KEYPASS=keypass1
    - SFTP_UID=1001
+   - SFTP_GID=33
    - SFTP_DATA_DIR=/data1/sftp
   volumes:
-   - /var/docker-test/dir:/data1/sftp/chroot/share/dir
+   - /var/docker-test/dir3:/data1/sftp/chroot/user1/dir3
   ports:
    - "30022:22"
