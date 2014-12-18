@@ -71,27 +71,31 @@ if [ $CHECK1 -eq 0 -o $CHECK2 -eq 0 ]; then
 else
 	useradd -Ud /share -u $SFTP_UID -s /usr/sbin/nologin $SFTP_USER
 fi
-	usermod -aG sftpusers $SFTP_USER
+
+if [ ! -f /sftp_pass ]; then
 	if [ -z $SFTP_PASS ]; then SFTP_PASS=`pwgen -scnB1 12`; fi
 	echo $SFTP_PASS > sftp_pass; chmod 600 sftp_pass
 	echo "$SFTP_USER:$SFTP_PASS" | chpasswd && unset SFTP_PASS
+fi
 
-	# Echo quickstart guide to logs
-	echo
-	echo '================================================================================='
-	echo 'Your sftp container is now ready to use!'
-	echo
-	echo 'Login to your new sftp container with these credentials:'
-	echo "Username: $SFTP_USER"
-	echo
-	echo 'For security reasons passwords are not listed here.'
-	echo 'To get the password run this:'
-	echo "docker cp some-container:/sftp_pass ."
-	echo
-	echo 'For more information, see the official README.md'
-	echo 'Link: http://registry.hub.docker.com/u/asavartzeth/sftp/'
-	echo 'Link: http://github.com/AsavarTzeth/docker-sftp/'
-	echo '================================================================================='
+usermod -aG sftpusers $SFTP_USER
+
+# Echo quickstart guide to logs
+echo
+echo '================================================================================='
+echo 'Your sftp container is now ready to use!'
+echo
+echo 'Login to your new sftp container with these credentials:'
+echo "Username: $SFTP_USER"
+echo
+echo 'For security reasons passwords are not listed here.'
+echo 'To get the password run this:'
+echo "docker cp some-container:/sftp_pass ."
+echo
+echo 'For more information, see the official README.md'
+echo 'Link: http://registry.hub.docker.com/u/asavartzeth/sftp/'
+echo 'Link: http://github.com/AsavarTzeth/docker-sftp/'
+echo '================================================================================='
 
 echo "Deployment completed!"
 
