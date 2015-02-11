@@ -10,80 +10,126 @@ OpenSSH (OpenBSD Secure Shell) is a set of computer programs that provides encry
 
 ![openssh](http://openssh.com/images/openssh.gif)
 
-#How to use this image#
+#Instructions#
 
-##Deploying a simple sftp instance##
+##Usage##
 
-    docker run --name some-sftp -P -d asavartzeth/sftp
+* UID
+* By default the contaier helper script will add a user (sftp1) and generate a random 12 character password. For security reasons this password will not be put in the log (like some containers). You may access your random password using:
 
-The port will be randomly chosen by the docker daemon. You may of course specify any port you wish.
 
-    docker run --name some-sftp -p xxxx:22 -d asavartzeth/sftp
+    docker cp
 
-By default your data is shared as standard Docker volumes. If you are unsure of what this means or simply have other needs I recommend you read the next section: **"Storing your data"**.
+##Examples##
 
-##Storing your data##
-###Storing data in a data volume container###
+###Single volume###
+
+    docker run --name sftp \
+		-v /host/dir:/chroot/share/dir \
+		-p 30022:22 -d asavartzeth/sftp
+
+Simple deployment for accessing a single directory.
+
+###Multiple volumes###
+
+    docker run --name sftp \
+		-v /host/dir1:/chroot/share/dir1 \
+		-v /host/dir2:/chroot/share/dir2 \
+		-v /host/dir3:/chroot/share/dir3 \
+		-p 30022:22 -d asavartzeth/sftp
+
+To access more than one directory you simply add more volumes.
+
+###Using data volumes (Recommended)###
+
+    docker run --name sftp \
+		-v /chroot/.ssh \
+		-v /etc/ssh \
+		-v /host/dir:/chroot/share/dir \
+		-p 30022:22 -d asavartzeth/sftp
+
+This adds volumes that will preserve ssh keys & config files.
+
+No volumes are enabled by default in the Dockerfile, so please do consider your preferred method of data storage. Other methods include data volume containers & storing data in a host directory (see bellow).
+
+###Using a data volume container###
 
     docker run --name sftp-data -v /data/sftp tianon/true
-    docker run --name some-sftp --volumes-from sftp-data -P -d asavartzeth/sftp
 
-This will pull down the tiny [tianon/true](https://registry.hub.docker.com/u/tianon/true/) container (unless you have it already) and set it to share /data/sftp. The second command does the deployment as normal, with the addition of mounting the shared volume at /data/sftp.
+This will pull down the tiny [tianon/true](https://registry.hub.docker.com/u/tianon/true/) container (unless you have it already) and set it to share **/data/sftp** (customizable via `$SFTP_DATA_DIR`).
 
-At runtime the included entrypoint script will check for the presence of $SFTP_DATA_DIR. If found, it will automatically transfer all important data to this location. This will keep it safe between upgrades & could simplify backups.
+    docker run --name sftp \
+		--volumes-from sftp-data \
+		-v /host/dir:/data/sftp/chroot/share/dir \
+		-p 30022:22 -d asavartzeth/sftp
 
-If you change $SFTP_DATA_DIR, do not forget to change the first command as well.
+At runtime the included helper script will check for the presence of `$SFTP_DATA_DIR`. If found, it will automatically rsync all important data to this data volume. This makes using dedicated data containers very simple.
 
-_See **Configuration Options** bellow, regarding $SFTP_DATA_DIR details (defaults to /data/sftp)_
+See **Configuration Options** bellow, for more details. `$SFTP_DATA_DIR` defaults to **/data/sftp**.
 
 ###Storing data in a host directory###
 
-    docker run --name some-sftp -v /path/container-data/sftp:/data/sftp -P -d asavartzeth/sftp
+    docker run --name sftp \
+		-v /host/data-dir:/data/sftp \
+        -v /host/dir:/data/sftp/chroot/share/dir \
+		-p 30022:22 -d asavartzeth/sftp
 
-This is using the same principle as above. But instead of mounting the volume of another container you will mount a host directory.
+This uses the same functionallity in the helper script as when using data volume containers (see previous). This makes it very simple to store data anywhere on the host.
 
-This is useful in the sense that it could minimize filesystem overhead and would allow you to safekeep your data in a more traditional way. Another thing to note is, if you wish to use zfs, or another filesystem with no Docker backend, this enables a good compromise.
+See **Configuration Options** bellow, for more details. `$SFTP_DATA_DIR` defaults to **/data/sftp**.
 
-A possible downside to this approach might be lesser portability of your data.
+###Using configuration options###
 
-##Exposing files & directories to the instance##
+    docker run --name sftp \
+		-e SFTP_USER=username \
+		-e SFTP_PASS=password \
+		-e SFTP_UID=1001 \
+		-v /host/dir:chroot/share/dir \
+		-p 30022:22 -d asavartzeth/sftp
 
-    docker run --name some-sftp -v /path/dir:$SFTP_DATA_DIR/chroot/share/dir -P -d asavartzeth/sftp
+The environment variables listed under **Configuration Options** allows you to set a username, UID, password, generate a ssh key and more.
 
-Preferably you would do this when you first deploy the container. However, you could certainly do the deployment as instructed under **"Deploying a simple sftp instance"**, commit and then re-deploy.
+You will have to always have to set custom UID to make changes in your mou
 
-##Complex configuration##
+See **Configuration Options** bellow, for more details.
+
+###Adding a ssh-key###
+(coming soon)
+
+###Generate a new ssh key###
+(coming soon)
+
+##Configuration Options##
+
+This is a full list of environment variables that is honored by the included helper script.
+
+- `SFTP_USER=...` (defaults to sftp1)
+- `SFTP_UID=...` (defaults to 2001)
+- `SFTP_PASS=...` (defaults to randomly generated password)  
+- `SFTP_KEYPASS=...` (no default, sets a passphrase and generates a ssh key)
+- `SFTP_DATA_DIR=...` (defaults to /data/sftp) (If no volume is found, it reverts to /)  
+*This will set the absolute path of a data volume. It is used by the helper script, to enable the transfer of application data to an empty location. The supplied volume could be a data volume container, such as [tianon/true](https://registry.hub.docker.com/u/tianon/true/), or mapped to a location on your host.*
+
+##Advanced configuration##
 
 For information on the syntax of the openssh configuration files, see the official [documentation](http://openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man5/sshd_config.5?query=sshd_config&sec=5).
 
-If you wish to adapt the default configuration, use something like the following to copy it from a running container:
-
-    docker cp some-sftp:/etc/ssh/sshd_config /some/path
+If you wish to adapt the default configuration, use something like the following to copy it from a running container:  
+  
+    docker cp some-sftp:/etc/ssh/sshd_config /some/path  
 
 You can use the modified configuration with:
 
-    docker run --name some-sftp -v /some/path:/etc/ssh:ro -P -d asavartzeth/sftp
-
-#Configuration Options#
-
-This is a full list of environment variables that will be used in the configuration of your instance.
-
-- -e `SFTP_USER=...` (defaults to sftp1)
-- -e `SFTP_UID=...` (defaults to 2001)
-- -e `SFTP_PASS=...` (defaults to randomly generated password)
-- -e `SFTP_LOG_LEVEL=...` (defaults to INFO)  
-The possible values are: QUIET, FATAL, ERROR, INFO, VERBOSE, DEBUG, DEBUG1, DEBUG2, and DEBUG3.
-- -e `SFTP_DATA_DIR=...` (defaults to /data/sftp)  
-*This will set the location of a data volume. It is used by the runtime script, to enable the transfer of application data to an empty location. This location could be a data volume container, such as [tianon/true](https://registry.hub.docker.com/u/tianon/true/), or a location on your host.*
+    docker run --name some-sftp -v /some/path:/etc/ssh/sshd_config:ro -P -d asavartzeth/sftp
 
 #User Feedback#
 
 ##Issues##
 
-If you have any problems with or questions about this image, please contact me through a [GitHub](https://github.com/asavartzeth/docker-sftp/issues) issue.
+If you have any problems with or questions about this image, please contact me through a [GitHub](https://github.com/asavartzeth/docker-sftp/issues) issue.  
 
 ##Contributing##
-
+  
 You are welcome to contribute new features, fixes, or updates, large or small; I always welcome pull requests, and I will do my best to process them without delay.
 
 Before you start to code, I recommend discussing your plans through a GitHub issue, especially for more ambitious contributions. This gives myself, as well as other potential contributors a chance to point you in the right direction, give you feedback on your design, and help you find out if someone else is working on the same thing.
