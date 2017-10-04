@@ -1,8 +1,10 @@
-#Supported tags and respective `Dockerfile` links#
+# AsavarTzeth/docker-sftp
+
+## Supported tags and respective `Dockerfile` links
 
 - [`6`, `6.6`, `latest` *(Dockerfile)*](https://github.com/AsavarTzeth/docker-sftp/blob/master/Dockerfile)
 
-#What is OpenSSH?#
+## What is OpenSSH?
 
 OpenSSH (OpenBSD Secure Shell) is a set of computer programs that provides encrypted communication sessions over a computer network using the SSH protocol. It was created as an open source alternative to the proprietary Secure Shell software suite offered by SSH Communications Security.
 
@@ -10,9 +12,9 @@ OpenSSH (OpenBSD Secure Shell) is a set of computer programs that provides encry
 
 ![openssh](http://openssh.com/images/openssh.gif)
 
-#How to use this image#
+## How to use this image
 
-##Deploying a simple sftp instance##
+### Deploying a simple sftp instance
 
     docker run --name some-sftp -P -d asavartzeth/sftp
 
@@ -22,8 +24,9 @@ The port will be randomly chosen by the docker daemon. You may of course specify
 
 By default your data is shared as standard Docker volumes. If you are unsure of what this means or simply have other needs I recommend you read the next section: **"Storing your data"**.
 
-##Storing your data##
-###Storing data in a data volume container###
+### Storing your data
+
+#### Storing data in a data volume container
 
     docker run --name sftp-data -v /data/sftp tianon/true
     docker run --name some-sftp --volumes-from sftp-data -P -d asavartzeth/sftp
@@ -36,7 +39,7 @@ If you change $SFTP_DATA_DIR, do not forget to change the first command as well.
 
 _See **Configuration Options** bellow, regarding $SFTP_DATA_DIR details (defaults to /data/sftp)_
 
-###Storing data in a host directory###
+#### Storing data in a host directory
 
     docker run --name some-sftp -v /path/container-data/sftp:/data/sftp -P -d asavartzeth/sftp
 
@@ -46,13 +49,13 @@ This is useful in the sense that it could minimize filesystem overhead and would
 
 A possible downside to this approach might be lesser portability of your data.
 
-##Exposing files & directories to the instance##
+### Exposing files & directories to the instance
 
     docker run --name some-sftp -v /path/dir:$SFTP_DATA_DIR/chroot/share/dir -P -d asavartzeth/sftp
 
 Preferably you would do this when you first deploy the container. However, you could certainly do the deployment as instructed under **"Deploying a simple sftp instance"**, commit and then re-deploy.
 
-##Complex configuration##
+### Complex configuration
 
 For information on the syntax of the openssh configuration files, see the official [documentation](http://openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man5/sshd_config.5?query=sshd_config&sec=5).
 
@@ -64,7 +67,7 @@ You can use the modified configuration with:
 
     docker run --name some-sftp -v /some/path:/etc/ssh:ro -P -d asavartzeth/sftp
 
-#Configuration Options#
+## Configuration Options
 
 This is a full list of environment variables that will be used in the configuration of your instance.
 
@@ -76,13 +79,13 @@ The possible values are: QUIET, FATAL, ERROR, INFO, VERBOSE, DEBUG, DEBUG1, DEBU
 - -e `SFTP_DATA_DIR=...` (defaults to /data/sftp)  
 *This will set the location of a data volume. It is used by the runtime script, to enable the transfer of application data to an empty location. This location could be a data volume container, such as [tianon/true](https://registry.hub.docker.com/u/tianon/true/), or a location on your host.*
 
-#User Feedback#
+## User Feedback
 
-##Issues##
+### Issues
 
 If you have any problems with or questions about this image, please contact me through a [GitHub](https://github.com/asavartzeth/docker-sftp/issues) issue.
 
-##Contributing##
+### Contributing
 
 You are welcome to contribute new features, fixes, or updates, large or small; I always welcome pull requests, and I will do my best to process them without delay.
 
