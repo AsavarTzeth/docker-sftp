@@ -81,12 +81,6 @@ The possible values are: QUIET, FATAL, ERROR, INFO, VERBOSE, DEBUG, DEBUG1, DEBU
 
 ## User Feedback
 
-### Issues
+This image is not supported anymore. It is provided for archival and academic purposes only and should never be used in a production environment.
 
-If you have any problems with or questions about this image, please contact me through a [GitHub](https://github.com/asavartzeth/docker-sftp/issues) issue.
-
-### Contributing
-
-You are welcome to contribute new features, fixes, or updates, large or small; I always welcome pull requests, and I will do my best to process them without delay.
-
-Before you start to code, I recommend discussing your plans through a GitHub issue, especially for more ambitious contributions. This gives myself, as well as other potential contributors a chance to point you in the right direction, give you feedback on your design, and help you find out if someone else is working on the same thing.
+Therefore if you have any techincal problems with this image, you are unfortunately on your own.
